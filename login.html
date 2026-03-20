@@ -20,6 +20,8 @@
                 console.log("time: " + totp.getRemainingSeconds());
                 console.log("TOTP: " + totp.generate());
                 console.log(totp.verify(totp.generate()));
+                localStorage.setItem('userid', username);
+                localStorage.setItem('secret', secret);
             }
         </script>
     </head>
