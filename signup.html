@@ -6,6 +6,9 @@
     <script src="basic.js"></script>
     <script src="totp.js"></script>
     <script>
+        if (isWeChat()) {
+            document.getElementById("secret-display").style.overflow = "auto";
+        }
         async function Signup() {
             const username = document.getElementById("username").value;
             if (!username) {
