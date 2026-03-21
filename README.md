@@ -1,1 +1,1 @@
-# Skill Bound 刻命技
+# Skill Bound 绝技夺魁
