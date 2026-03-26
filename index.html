@@ -1,29 +1,99 @@
-<script src="basic.min.js"></script>
-<script>
-    localStorage.setItem('你来到了这里','就没想过好好玩吧')
-    if ("WebSocket" in window) {
-        if (isWeChat()) {
-            alert('请注意：微信浏览器可能无法正常使用此应用程序。建议使用其他浏览器访问。\n\nPlease note: WeChat browser may not work properly with this application. It is highly recommended to use another browser to access it.');
-            if (localStorage.getItem('userid') == null) {
-                // CONTENT LOADED
-                if (localStorage.getItem('userid') == null) {
-                    window.location.href = 'signup.html';
-                } else {
-                    window.location.href = 'home.html';
-                }
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="basic.min.js"></script>
+    <script>
+        localStorage.setItem('你来到了这里','就没想过好好玩吧');
+        if ("WebSocket" in window) {if (isWeChat()) {alert('请注意：微信浏览器可能无法正常使用此应用程序。建议使用其他浏览器访问。\n\nPlease note: WeChat browser may not work properly with this application. It is highly recommended to use another browser to access it.');}} else {document.write("你的浏览器不支持WebSockets,请用现代浏览器访问。\n\nYour browser does not support WebSockets. Please use a modern browser to access this application.");}
+    </script>
+    <style>
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        noscript {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        #syntropica-logo {
+            text-align: center;
+            color: #fff;
+            animation: blur-in-and-out 5s ease-in forwards;
+        }
+        #syntropica-logo img {
+            width: 400px;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+        #syntropica-logo h1 {
+            font-size: 55px;
+            margin: 0;
+        }
+        @keyframes blur-in-and-out {
+            0% {
+                filter: blur(10px);
+                opacity: 0;
             }
-        }else {
-            if (localStorage.getItem('userid') == null) {
-                window.location.href = 'signup.html';
-            } else {
-                window.location.href = 'home.html';
+            25% {
+                filter: blur(0);
+                opacity: 1;
+            }
+            75% {
+                filter: blur(0);
+                opacity: 1;
+            }
+            100% {
+                filter: blur(10px);
+                opacity: 0;
             }
         }
-    } else {
-        document.write("Your browser does not support WebSockets. Please use a modern browser to access this application.");
-    }
-</script>
-<noscript>
-    <p>JavaScript is required to run this application. Please enable JavaScript in your browser settings.</p>
-    <p>If you are unable to enable JavaScript, please download a browser that supports JavaScript.</p>
-</noscript>
+
+        .loaded {
+            position: relative;
+            text-align: center;
+            align-self: center;
+            color: #fff;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div id="syntropica-logo">
+            <img src="https://assets.r2.syntropica.top/logo/white.black.svg" alt="Syntropica Logo">
+            <h1>Syntropica Presents</h1>
+        </div>
+        <h1 class="loaded" style="font-size: 75px;">SKILL BOUND</h1>
+        <h3 class="loaded" style="margin-top:75%;">> &nbsp; Press anywhere to continue &nbsp; <</h3>
+    </main>
+    <video class="loaded" style="height:100%; width:100%; z-index:-1; position:absolute; margin:0; object-fit: fill;" src="https://vdse.bdstatic.com//192d9a98d782d9c74c96f09db9378d93.mp4" preload="auto" playsinline autoplay muted loop></video>
+    <script>
+        if (document.getElementById('syntropica-logo').addEventListener('animationend', function() {
+            console.log('Animation ended');
+            document.getElementById('syntropica-logo').style.display = 'none';
+            Array.from(document.getElementsByClassName('loaded')).forEach(element => {
+                element.style.display = 'block';
+            });
+            document.body.onclick = function() {window.location.href = 'login.html';}
+        }));
+    </script>
+    <noscript>
+        <p>JavaScript is required to run this application. Please enable JavaScript in your browser settings.</p>
+        <p>If you are unable to enable JavaScript, please download a browser that supports JavaScript.</p>
+    </noscript>
+</body>
+</html>

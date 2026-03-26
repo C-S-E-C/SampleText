@@ -303,95 +303,17 @@ function generateRandomBase32Secret(length = 20) {
     return secret;
 }
 
-/**
- * 工具函数：从URI字符串解析TOTP配置
- * @param {string} uri - otpauth://totp/... 格式的URI
- * @returns {Object} 解析出的配置 { secret, issuer, account, period, digits, algorithm }
- */
-function parseTOTPURI(uri) {
-    if (!uri || !uri.startsWith('otpauth://totp/')) {
-        throw new Error('Invalid TOTP URI format');
-    }
-    
-    try {
-        const url = new URL(uri);
-        const pathname = decodeURIComponent(url.pathname.substring(1));
-        const [account, ...issuerParts] = pathname.split(':').reverse();
-        const issuer = issuerParts.reverse().join(':') || url.searchParams.get('issuer');
-        
-        const secret = url.searchParams.get('secret');
-        if (!secret) {
-            throw new Error('Missing secret parameter');
-        }
-        
-        const period = parseInt(url.searchParams.get('period') || '30');
-        const digits = parseInt(url.searchParams.get('digits') || '6');
-        const algorithm = (url.searchParams.get('algorithm') || 'SHA1').toUpperCase();
-        
-        return {
-            secret: secret.toUpperCase(),
-            issuer: issuer || null,
-            account: account || null,
-            period: isNaN(period) ? 30 : period,
-            digits: isNaN(digits) ? 6 : digits,
-            algorithm: algorithm
-        };
-    } catch (error) {
-        throw new Error(`Failed to parse URI: ${error.message}`);
-    }
-}
-
-/**
- * 工具函数：生成标准的otpauth URI
- * @param {Object} config - 配置对象
- * @param {string} config.secret - Base32密钥
- * @param {string} config.issuer - 发行者（如Google、Microsoft等）
- * @param {string} config.account - 账户名（如user@example.com）
- * @param {number} config.period - 周期，默认30
- * @param {number} config.digits - 位数，默认6
- * @param {string} config.algorithm - 算法，默认SHA1
- * @returns {string} otpauth URI
- */
-function generateTOTPURI(config) {
-    const {
-        secret,
-        issuer,
-        account,
-        period = 30,
-        digits = 6,
-        algorithm = 'SHA1'
-    } = config;
-    
-    if (!secret) throw new Error('Secret is required');
-    if (!account) throw new Error('Account is required');
-    
-    const label = issuer ? `${encodeURIComponent(issuer)}:${encodeURIComponent(account)}` : encodeURIComponent(account);
-    const params = new URLSearchParams({
-        secret: secret.toUpperCase(),
-        period: period.toString(),
-        digits: digits.toString(),
-        algorithm: algorithm.toUpperCase()
-    });
-    
-    if (issuer) {
-        params.append('issuer', issuer);
-    }
-    
-    return `otpauth://totp/${label}?${params.toString()}`;
-}
 
 // 导出模块（支持CommonJS、AMD和浏览器全局变量）
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { TOTP, generateRandomBase32Secret, parseTOTPURI, generateTOTPURI };
+    module.exports = { TOTP, generateRandomBase32Secret };
 } else if (typeof define === 'function' && define.amd) {
     define([], function() {
-        return { TOTP, generateRandomBase32Secret, parseTOTPURI, generateTOTPURI };
+        return { TOTP, generateRandomBase32Secret };
     });
 } else {
     window.TOTP = TOTP;
     window.generateRandomBase32Secret = generateRandomBase32Secret;
-    window.parseTOTPURI = parseTOTPURI;
-    window.generateTOTPURI = generateTOTPURI;
 }
 
 /* ==================== 使用示例 ==================== */
