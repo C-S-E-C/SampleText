@@ -18,11 +18,7 @@
 
             // 本地存储
             localStorage.setItem('userid', username);
-
-            // 界面切换
-            document.getElementById("signup").style.display = "none";
-            document.getElementById("secret-display").value = secret; // 使用 .value 针对 textarea
-            document.getElementById("success").style.display = "block";
+            window.location.href = "login.html";
         }
     </script>
 </head>
@@ -33,20 +29,6 @@
         <input type="text" id="username" placeholder="Username" style="padding: 8px;">
         <button onclick="Signup()" style="padding: 8px 16px;">Signup</button>
         <p id="note"></p>
-    </div>
-
-    <div id="success" style="display: none; text-align: center; margin-top: 20px;">
-        <h1 style="color: green;">Signup successful!</h1>
-        <h2>You may need to save the code below for account recovery:</h2>
-        
-        <div style="margin-bottom: 10px;">
-            <button onclick="copyToClipboard(document.getElementById('secret-display').value)">Copy to clipboard</button>
-            <button onclick="download(document.getElementById('secret-display').value, 'skill-bound-account-recovery-secret.txt', 'text/plain')">Download as file</button>
-        </div>
-
-        <textarea id="secret-display" readonly 
-            style="width: 575px; height: 300px; resize: none; padding: 10px; font-family: monospace; overflow: hidden;">
-        </textarea>
     </div>
 </body>
 </html>
