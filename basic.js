@@ -21,10 +21,17 @@ function copyToClipboard(content) {
 function isWeChat(){
     //window.navigator.userAgent属性包含了浏览器类型、版本、操作系统类型、浏览器引擎类型等信息，这个属性可以用来判断浏览器类型
     var ua = window.navigator.userAgent.toLowerCase();
+    console.log(ua);
   //通过正则表达式匹配ua中是否含有MicroMessenger字符串
     if(ua.match(/MicroMessenger/i) == 'micromessenger'){
         return true;
     }else{
         return false;
+    }
+}
+var isnotie = (window.navigator.userAgent.toLowerCase().includes("edge") || window.navigator.userAgent.toLowerCase().includes("chrome") || window.navigator.userAgent.toLowerCase().includes("safari")) && window.navigator.userAgent.toLowerCase().includes("applewebkit");
+if (isnotie == false) {
+    window.onload = function () {
+        this.document.body.innerHTML = "都2026年了，您老人家还在用ie呢，您是老北京人吧！请您换成edge或chrome吧！";
     }
 }
