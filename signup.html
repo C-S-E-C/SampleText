@@ -16,30 +16,8 @@
                 return;
             }
 
-            // 生成 1024 位的 Base32 密钥
-            const secret = generateRandomBase32Secret(1024);
-            const totp = new TOTP(secret, { 
-                period: 30, 
-                digits: 8, 
-                algorithm: 'SHA1' 
-            });
-
-            let time = totp.getRemainingSeconds();
-            console.log("Username: " + username);
-            console.log("Secret: " + secret);
-            document.getElementById("note").innerText = "Please wait...";
-            // 如果当前验证码即将过期（少于 5 秒），等待进入下一个周期
-            if (time < 5) {
-                await wait(time * 1000);
-            }
-
-            console.log("Remaining time: " + totp.getRemainingSeconds());
-            console.log("TOTP: " + totp.generate());
-            console.log("Verify Check: " + totp.verify(totp.generate()));
-
             // 本地存储
             localStorage.setItem('userid', username);
-            localStorage.setItem('secret', secret);
 
             // 界面切换
             document.getElementById("signup").style.display = "none";
