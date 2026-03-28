@@ -29,9 +29,12 @@ function isWeChat(){
         return false;
     }
 }
-var isnotie = (window.navigator.userAgent.toLowerCase().includes("edge") || window.navigator.userAgent.toLowerCase().includes("chrome") || window.navigator.userAgent.toLowerCase().includes("safari")) && window.navigator.userAgent.toLowerCase().includes("applewebkit");
-if (isnotie == false) {
+// Detect Internet Explorer (including IE11 and older IE versions)
+var isIE = window.navigator.userAgent.toLowerCase().indexOf("msie") !== -1 ||
+          window.navigator.userAgent.toLowerCase().indexOf("trident") !== -1;
+
+if (isIE) {
     window.onload = function () {
         document.body.innerHTML = "都2026年了，您老人家还在用ie呢，您是老北京人吧！请您换成edge或chrome吧！";
-    }
+    };
 }
