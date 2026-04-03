@@ -172,6 +172,9 @@
                 window.location.href = 'login.html';
             }
         });
+        setInterval(function() {
+            sessionStorage.setItem("bgmtime", document.getElementById("background-music").currentTime)
+        }, 50);
     </script>
     <noscript>
         <p>JavaScript is required to run this application. Please enable JavaScript in your browser settings.</p>

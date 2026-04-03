@@ -93,6 +93,9 @@
     <script src="js/cache.js"></script>
 </head>
 <body>
+    <audio id="background-music" loop style="display:none;">
+        <source src="music/waiting.mp3" type="audio/mp3">
+    </audio>
     <div id="top-bar">
         <p id="energy" onclick="window.open('energy.html','_blank')"></p>
         <p id="coins"></p>
@@ -104,6 +107,8 @@
         <button id="manual">Manual</button>
     </div>
     <script>
+        document.getElementById("background-music").currentTime = sessionStorage.getItem("bgmtime") || 0;
+        document.getElementById("background-music").play();
         translate.listener.start();
         translate.execute();
         if (localStorage.getItem("userid") == null) {
@@ -115,6 +120,9 @@
             document.getElementById("coins").innerHTML = "🪙 " + sessionStorage.getItem("coins") + "&nbsp;⊕";
             document.getElementById("energy").innerHTML = "🔋 " + sessionStorage.getItem("energy") + "&nbsp;⊕";
         }, 1000);
+        setInterval(function() {
+            sessionStorage.setItem("bgmtime", document.getElementById("background-music").currentTime)
+        }, 50);
     </script>
 </body>
 </html>
