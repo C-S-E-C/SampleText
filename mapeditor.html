@@ -109,8 +109,7 @@
             let result = "";
             cells.forEach((cell, index) => {
                 result += cell.dataset.type;
-                // 如果你想要多行（每100个换行），可以取消下面注释：
-                // if ((index + 1) % 100 === 0) result += "\n";
+                if ((index + 1) % 100 === 0) result += "\n";
             });
             document.getElementById('output-text').value = result;
         }

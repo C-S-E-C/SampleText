@@ -201,9 +201,6 @@
         <h1>Select Battlefield</h1>
         <div class="selection-group">
             <select id="map-choice">
-                <option value="map1">NEON CITY</option>
-                <option value="map2">WASTELAND</option>
-                <option value="map3">ORBITAL STATION</option>
             </select>
         </div>
 
@@ -238,7 +235,18 @@
         const music = document.getElementById("background-music");
         music.currentTime = sessionStorage.getItem("bgmtime") || 0;
         music.play().catch(() => {});
-
+        fetch("maps/index.json")
+            .then(response => response.json())
+            .then(maps => {
+                const mapSelect = document.getElementById("map-choice");
+                maps.forEach(map => {
+                    const option = document.createElement("option");
+                    option.value = map;
+                    option.textContent = map.toUpperCase().replace(".MAP", "");
+                    mapSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Failed to load maps:", error));
         async function pair() {
             const mode = parseInt(document.getElementById("mode-choice").value);
             const battlefield = document.getElementById("map-choice").value;
