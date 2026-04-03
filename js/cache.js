@@ -1,8 +1,7 @@
 window.addEventListener("DOMContentLoaded", async function() {
     const cache = await caches.open("v1");
-    const elements = document.querySelectorAll("*");
+    const elements = document.querySelectorAll("*[src]"); // Select all elements with a src attribute
     for (const el of elements) {
-        if (!el.src) continue; // Skip elements without src attribute
         const requestUrl = el.src;
 
         // Check if we already have it
