@@ -300,6 +300,24 @@
                 statusBox.innerText = "Searching for opponents" + ".".repeat(dots);
             }, 500);
         }
+        async () => {
+            const cache = await caches.open("cache");
+            const cachedFiles = [
+                // images
+                "images/block.webp",
+                "images/bush.webp",
+                "images/bushes.webp",
+                "images/fire.webp",
+                "images/ground.webp",
+                "images/water.webp",
+                "images/skins.webp",
+            ];
+            for (const file of cachedFiles) {
+                if (!await cache.match(file)) {
+                    await cache.add(file);
+                }
+            }
+        }
     </script>
 </body>
 </html>
