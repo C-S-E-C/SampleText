@@ -69,11 +69,12 @@
         }
     </style>
     <script src="js/cache.js"></script>
+    <script src="js/translate.min.js"></script>
 </head>
 <body>
 
     <div class="container">
-        <h2 style="margin-top: 0; font-weight: 300;">硬币兑换</h2>
+        <h2 style="margin-top: 0; font-weight: 300;">能量兑换</h2>
         <p id="ExchangeRate"></p>
         <p style="font-size: 0.9rem; color: #888;" id="me"></p>
         <a href="https://www.ifdian.net/item/3ee256e62f3e11f1a1c352540025c377" class="buy-button">立即购买 (1 CNY)</a>
@@ -87,7 +88,7 @@
             .then(response => response.json())
             .then(data => {
                 document.getElementById("ExchangeRate").innerHTML = 
-                    "1 CNY = <span style='font-size: 1.5rem;'>" + data.ExchangeRate + " Coin </span>";
+                    "1 CNY = <span style='font-size: 1.5rem;'>" + data.ExchangeRate + " Energy </span>";
             })
             .catch(err => {
                 document.getElementById("ExchangeRate").innerText = "无法加载汇率";

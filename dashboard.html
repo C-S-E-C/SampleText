@@ -103,14 +103,12 @@
     </div>
     <div id="controls">
         <button id="map">Map</button>
-        <button id="fight">Fight!</button>
+        <button id="fight" onclick="window.location.href='pair.html'">Fight!</button>
         <button id="manual">Manual</button>
     </div>
     <script>
         document.getElementById("background-music").currentTime = sessionStorage.getItem("bgmtime") || 0;
         document.getElementById("background-music").play();
-        translate.listener.start();
-        translate.execute();
         if (localStorage.getItem("userid") == null) {
             window.location.href = "login.html";
         }
