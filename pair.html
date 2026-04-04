@@ -264,10 +264,12 @@
             opponentTeam.innerHTML = '';
             ourTeam.className = `team-container ours layout-${mode}`;
             opponentTeam.className = `team-container opponent layout-${mode}`;
-            
+            const statusBox = document.getElementById("status-text");
+            statusBox.innerText = "Connecting to server...";
             // 3. WebSocket 连接到服务器
-            const socket = new WebSocket("wss://example.com").catch(error => document.getElementById("status-text").innerText = "WebSocket Error: " + error);
+            const socket = new WebSocket("wss://example.com").catch(error => statusBox.innerText = "WebSocket Error: " + error);
             socket.onopen = () => {
+                statusBox.innerText = "Connected. Waiting for match...";
                 console.log("WebSocket connection established.");
                 // 发送匹配请求
                 socket.send(JSON.stringify({
@@ -291,7 +293,7 @@
                     }
                 } else if (data.type === "pairing_complete") {
                     // 匹配完成，显示玩家信息
-                    document.getElementById("status-text").innerText = "Match Found!";
+                    statusBox.innerText = "Match Found!";
                     document.getElementById("start-fight").disabled = false;
                     document.getElementById("start-fight").onclick = () => {
                         // 进入战斗界面
@@ -299,14 +301,6 @@
                     };
                 }
             };
-
-            // 模拟匹配过程中的小动画
-            let dots = 0;
-            const statusBox = document.getElementById("status-text");
-            setInterval(() => {
-                dots = (dots + 1) % 4;
-                statusBox.innerText = "Searching for opponents" + ".".repeat(dots);
-            }, 500);
         }
         (async () => {
             const cache = await caches.open("cache");
