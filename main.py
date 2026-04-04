@@ -3,7 +3,13 @@ from websockets.asyncio.server import serve
 import websockets.exceptions
 import json
 import pairing
+import ssl
+import pathlib
+
 actions = []
+ssl = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+localhost_pem = pathlib.Path(__file__).with_name("localhost.pem")
+ssl.load_cert_chain(localhost_pem)
 async def handler(websocket):
     while True:
         try:
@@ -26,7 +32,7 @@ async def handler(websocket):
             break
 
 async def main():
-    async with serve(handler, "localhost", 8765) as server:
+    async with serve(handler, "localhost", 8765, ssl=ssl) as server:
         await server.serve_forever()
 
 if __name__ == "__main__":
