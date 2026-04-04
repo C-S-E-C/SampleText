@@ -266,7 +266,7 @@
             opponentTeam.className = `team-container opponent layout-${mode}`;
             
             // 3. WebSocket 连接到服务器
-            const socket = new WebSocket("wss://example.com");
+            const socket = new WebSocket("wss://example.com").catch(error => document.getElementById("status-text").innerText = "WebSocket Error: " + error);
             socket.onopen = () => {
                 console.log("WebSocket connection established.");
                 // 发送匹配请求
