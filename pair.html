@@ -282,12 +282,16 @@
             };
             socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                if (data.type === "add_player") {
+                if (data.type === "paired") {
+                    sessionStorage.setItem("groupId", data.groupId);
+                    sessionStorage.setItem("myTeam", data.playerId);
+                    sessionStorage.setItem("myId", data.myId);
+                } else if (data.type === "add_player") {
                     // 更新匹配状态
                     const player = document.createElement("div");
                     player.className = "player-slot";
                     player.innerHTML = `<small style="font-size:10px">${data.playerName}</small>`;
-                    if (data.team === "our") {
+                    if (data.playerTeam === sessionStorage.getItem("myTeam")) {
                         ourTeam.appendChild(player);
                     } else {
                         opponentTeam.appendChild(player);
