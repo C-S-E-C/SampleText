@@ -11,7 +11,7 @@ const languages = [
 // Change language function
 function changeLanguage(lang) {
     console.log("Language changed to:", lang);
-    translate.changeLanguage(lang);
+    localStorage.setItem("lang", lang);
     document.getElementById("continue").style.display = "block";
 }
 
@@ -41,11 +41,6 @@ langsearch.addEventListener("input", function (e) {
         }
     }, 150);
 });
-
-// Setup translation system
-translate.ignore.tag.push('li');
-translate.listener.start();
-translate.execute();
 
 // Continue function
 function continue_() {
