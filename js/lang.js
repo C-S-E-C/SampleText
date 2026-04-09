@@ -4,14 +4,8 @@
 
 // Language data
 const languages = [
-    {"id":"english","name":"English","serviceId":"en"},
-    {"id":"chinese_simplified","name":"简体中文","serviceId":"zh-CN"},
-    {"id":"spanish","name":"Español","serviceId":"es"},
-    {"id":"french","name":"Français","serviceId":"fr"},
-    {"id":"german","name":"Deutsch","serviceId":"de"},
-    {"id":"russian","name":"Русский язык","serviceId":"ru"},
-    {"id":"japanese","name":"日本語","serviceId":"ja"},
-    {"id":"korean","name":"한국어","serviceId":"ko"}
+    {"id":"en_us","name":"English"},
+    
 ];
 
 // Change language function

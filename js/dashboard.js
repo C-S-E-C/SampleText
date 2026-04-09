@@ -3,9 +3,6 @@
    ============================================ */
 
 // Check user authentication and initialize session storage
-if (localStorage.getItem("to") == null) {
-    window.location.href = "lang.html";
-}
 if (sessionStorage.getItem("coins") == null) {
     sessionStorage.setItem("coins", 0);
 }
