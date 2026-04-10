@@ -41,12 +41,14 @@ async function pair() {
     
     const statusBox = document.getElementById("status-text");
     statusBox.innerText = "Connecting to server...";
+    statusBox.setAttribute('data-translated', 'false');
     
     // WebSocket connection to server
-    const socket = new WebSocket(sessionStorage.getItem("WSServer")).catch(error => statusBox.innerText = "WebSocket Error: " + error);
+    const socket = new WebSocket(sessionStorage.getItem("WSServer")).catch(error => {statusBox.innerText = "WebSocket Error: " + error; statusBox.setAttribute('data-translated', 'false');});
     
     socket.onopen = () => {
         statusBox.innerText = "Connected. Waiting for match...";
+        statusBox.setAttribute('data-translated', 'false');
         console.log("WebSocket connection established.");
         
         // Send pairing request
@@ -79,6 +81,7 @@ async function pair() {
         } else if (data.type === "pairing_complete") {
             // Pairing complete, show player info
             statusBox.innerText = "Match Found!";
+            statusBox.setAttribute('data-translated', 'false');
             document.getElementById("start-fight").disabled = false;
             document.getElementById("start-fight").onclick = () => {
                 // Enter battle interface
