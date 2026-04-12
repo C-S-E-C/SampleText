@@ -314,9 +314,18 @@ function updateInventoryGrid() {
         const isForSynth = synthSelectedIds.includes(skill.id);
         if (isForSynth) el.classList.add("selected");
         el.style.borderColor = CAT_COLORS[skill.category] || "#888";
-        el.innerHTML = `<div class="skill-name">${skill.name}</div>
-                        <div class="skill-level">Lv${skill.level}</div>
-                        <div class="skill-cat">${skill.category}</div>`;
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "skill-name";
+        nameDiv.textContent = skill.name;
+        const levelDiv = document.createElement("div");
+        levelDiv.className = "skill-level";
+        levelDiv.textContent = `Lv${skill.level}`;
+        const catDiv = document.createElement("div");
+        catDiv.className = "skill-cat";
+        catDiv.textContent = skill.category;
+        el.appendChild(nameDiv);
+        el.appendChild(levelDiv);
+        el.appendChild(catDiv);
         el.addEventListener("click", () => onInventorySkillClick(skill));
         el.addEventListener("mouseenter", (e) => showTooltip(skill, e));
         el.addEventListener("mouseleave", hideTooltip);
@@ -370,10 +379,24 @@ function assignSkillToSlot(skill, slotIndex) {
     const slotEl = document.querySelector(`.slot-config[data-index="${slotIndex}"]`);
     if (slotEl) {
         slotEl.classList.add("filled");
-        slotEl.innerHTML = `<div class="slot-num">槽 ${slotIndex+1}${slotIndex < 2 ? " 🔒" : ""}</div>
-                            <span class="clear-slot" onclick="clearSlot(${slotIndex},event)">✕</span>
-                            <div class="slot-skill-name">${skill.name}</div>
-                            <div class="slot-skill-lvl">Lv${skill.level}</div>`;
+        slotEl.innerHTML = "";
+        const numDiv = document.createElement("div");
+        numDiv.className = "slot-num";
+        numDiv.textContent = `槽 ${slotIndex + 1}${slotIndex < 2 ? " 🔒" : ""}`;
+        const clearSpan = document.createElement("span");
+        clearSpan.className = "clear-slot";
+        clearSpan.textContent = "✕";
+        clearSpan.addEventListener("click", (e) => clearSlot(slotIndex, e));
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "slot-skill-name";
+        nameDiv.textContent = skill.name;
+        const lvlDiv = document.createElement("div");
+        lvlDiv.className = "slot-skill-lvl";
+        lvlDiv.textContent = `Lv${skill.level}`;
+        slotEl.appendChild(numDiv);
+        slotEl.appendChild(clearSpan);
+        slotEl.appendChild(nameDiv);
+        slotEl.appendChild(lvlDiv);
     }
     // Push updated slots to server
     wsSend({ action: "configure_slots", slots: _slotAssignments });
@@ -413,7 +436,7 @@ function updateSynthStatus() {
 }
 
 function updateReadyStatus(playerId, playerName, isReady) {
-    if (gameState?.players?.[playerId]) {
+    if (gameState?.players && Object.hasOwn(gameState.players, playerId)) {
         gameState.players[playerId].ready = isReady;
     }
     updatePreGame();
@@ -509,20 +532,47 @@ function createPlayerCard(player) {
     let statusText = player.is_dead ? "💀 死亡" : player.is_downed ? "💔 倒地" : "";
     const shieldStr = player.shield > 0 ? `🛡️${player.shield}` : "";
 
-    card.innerHTML = `
-        <div class="player-card-name">
-            <span>${player.name}${player.id === myId ? " (我)" : ""}
-              <small style="color:var(--text-dim); font-size:0.5rem">${player.attribute ? getAttrIcon(player.attribute) : ""}</small>
-            </span>
-            <span class="status-icons">${statusStr}${shieldStr}</span>
-        </div>
-        <div class="player-card-hp-bar-wrap">
-            <div class="player-card-hp-bar" style="width:${hpPct}%; background:${hpColor}"></div>
-        </div>
-        <div class="player-card-hp-text">
-            ${player.hp}/${player.max_hp} HP  ${statusText}
-        </div>
-    `;
+    card.innerHTML = "";
+
+    // Player name row
+    const nameRow = document.createElement("div");
+    nameRow.className = "player-card-name";
+
+    const nameSpan = document.createElement("span");
+    // Only emoji/constant text + player.name via textContent
+    const attrIcon = player.attribute ? getAttrIcon(player.attribute) : "";
+    const small = document.createElement("small");
+    small.style.color = "var(--text-dim)";
+    small.style.fontSize = "0.5rem";
+    small.textContent = attrIcon;
+    nameSpan.textContent = player.name + (player.id === myId ? " (我)" : "");
+    nameSpan.appendChild(small);
+
+    const statusSpan = document.createElement("span");
+    statusSpan.className = "status-icons";
+    // statusStr and shieldStr contain only safe emoji/numbers
+    statusSpan.textContent = statusStr + shieldStr;
+
+    nameRow.appendChild(nameSpan);
+    nameRow.appendChild(statusSpan);
+
+    // HP bar
+    const hpBarWrap = document.createElement("div");
+    hpBarWrap.className = "player-card-hp-bar-wrap";
+    const hpBar = document.createElement("div");
+    hpBar.className = "player-card-hp-bar";
+    hpBar.style.width = hpPct + "%";
+    hpBar.style.background = hpColor;
+    hpBarWrap.appendChild(hpBar);
+
+    // HP text
+    const hpText = document.createElement("div");
+    hpText.className = "player-card-hp-text";
+    hpText.textContent = `${Math.max(0, player.hp)}/${player.max_hp} HP  ${statusText}`;
+
+    card.appendChild(nameRow);
+    card.appendChild(hpBarWrap);
+    card.appendChild(hpText);
 
     // Click to select target (enemies only for attack, allies for revive/support)
     if (!player.is_dead) {
@@ -589,11 +639,20 @@ function buildSkillBar() {
         btn.dataset.index = i;
         if (i < 2) btn.classList.add("permanent");
         if (!skill) btn.classList.add("empty");
-        btn.innerHTML = `<div class="slot-key">${HOTKEYS[i]}</div>` +
-            (skill
-                ? `<div class="slot-name">${skill.name}</div>
-                   <div class="slot-lvl">Lv${skill.level}</div>`
-                : `<div class="slot-name">空</div>`);
+        const keyDiv = document.createElement("div");
+        keyDiv.className = "slot-key";
+        keyDiv.textContent = HOTKEYS[i];
+        btn.appendChild(keyDiv);
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "slot-name";
+        nameDiv.textContent = skill ? skill.name : "空";
+        btn.appendChild(nameDiv);
+        if (skill) {
+            const lvlDiv = document.createElement("div");
+            lvlDiv.className = "slot-lvl";
+            lvlDiv.textContent = `Lv${skill.level}`;
+            btn.appendChild(lvlDiv);
+        }
         if (skill) {
             btn.addEventListener("click", () => onSkillSlotClick(i));
             btn.addEventListener("mouseenter", (e) => showTooltip(skill, e));
@@ -676,7 +735,7 @@ function renderDroppedSkills(skills) {
         const el = document.createElement("div");
         el.className = "dropped-skill";
         el.dataset.skillId = skill.id;
-        el.innerHTML = `${skill.name} Lv${skill.level}`;
+        el.textContent = `${skill.name} Lv${skill.level}`;
         el.addEventListener("click", () => {
             wsSend({ action: "pick_up_skill", skillId: skill.id });
         });
@@ -774,10 +833,14 @@ function showResultScreen(winnerTeam, rewards) {
     title.className = isWin ? "win" : "lose";
 
     const myReward = rewards?.[myId] || {};
-    document.getElementById("result-rewards").innerHTML = `
-        <p>🪙 最终金币: ${myReward.coins ?? 0}</p>
-        <p>获胜队伍: ${winnerTeam === "A" ? "🔵" : "🔴"} 队伍 ${winnerTeam}</p>
-    `;
+    const rewardsDiv = document.getElementById("result-rewards");
+    rewardsDiv.innerHTML = "";
+    const coinsP = document.createElement("p");
+    coinsP.textContent = `🪙 最终金币: ${Number(myReward.coins) || 0}`;
+    const winTeamP = document.createElement("p");
+    winTeamP.textContent = `获胜队伍: ${winnerTeam === "A" ? "🔵" : "🔴"} 队伍 ${winnerTeam === "A" ? "A" : "B"}`;
+    rewardsDiv.appendChild(coinsP);
+    rewardsDiv.appendChild(winTeamP);
 
     showScreen("result");
 }

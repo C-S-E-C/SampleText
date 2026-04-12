@@ -989,7 +989,7 @@ class GameSession:
         level = selected[0]["level"]
         name = selected[0]["name"]
 
-        # Required count by level: lv1→2, lv2→4, lv3→8
+        # Required count by level per design doc: 2×lv1→lv2, 4×lv2→lv3, 8×lv3→lv4
         required = {1: 2, 2: 4, 3: 8}
         req = required.get(level)
         if req is None:
