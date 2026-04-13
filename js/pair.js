@@ -44,7 +44,7 @@ async function pair() {
     statusBox.setAttribute('data-translated', 'false');
     
     // WebSocket connection to server
-    const socket = new WebSocket(sessionStorage.getItem("WSServer")).catch(error => {statusBox.innerText = "WebSocket Error: " + error; statusBox.setAttribute('data-translated', 'false');});
+    const socket = new WebSocket(sessionStorage.getItem("WSServer")).catch(error => console.error(error));
     
     socket.onopen = () => {
         statusBox.innerText = "Connected. Waiting for match...";
