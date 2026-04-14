@@ -22,7 +22,7 @@
 
 ## Special thanks 特别鸣谢
 ### Deepseek (AI)
-### Gemma & Gemmini (AI)
+### Gemma & Gemini (AI)
 ### Github Copilot (AI)
 ### V0 (AI)
 
