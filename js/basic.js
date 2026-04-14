@@ -44,13 +44,13 @@ function showLoadingAnimation() {
     const e = document.getElementById("loading-animation");
     if (e) {
         var state = 0;
-        const chars = ["⣿", "⡿", "⠿", "⠻", "⠛", "⠙", "⠉", "⠁", "⠀", "⡀", "⣀", "⣠", "⣤", "⣦", "⣶", "⣾"];
+        const chars = ["⣿", "⡿", "⠿", "⠻", "⠛", "⠋", "⠉", "⠈", "⠀", "⡀", "⣀", "⣠", "⣤", "⣦", "⣶", "⣾"];
         setInterval(() => {
             const e = document.getElementById("loading-animation");
             e.innerText = chars[state];
             state -=- 1;
             if (state > chars.length - 1) state = 0;
-        }, 300);
+        }, 200);
     }
 }
 //DomContentLoaded
