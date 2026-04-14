@@ -48,7 +48,7 @@ async function pair() {
 
     socket.onerror = (error) => {
        console.error("WebSocket error:", error);
-       statusBox.innerHTML = "Connection error. Please try again later.";
+       statusBox.innerHTML = "Connection error. Please try again later. Error:"+error;
     };
    
     socket.onopen = () => {
