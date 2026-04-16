@@ -8,6 +8,7 @@ const TILE_SIZE = 32;
 const DEFAULT_MAP = "air.map";
 const MOVE_SPEED = 180; // world units/sec
 const SEND_INTERVAL_MS = 80;
+const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
 
 let ws = null;
 let myId = null;
@@ -299,8 +300,10 @@ function readPlayerPos(player) {
     const py = Number(player.y ?? player.pos?.y ?? player.position?.y);
 
     const fallbackSeed = hashCode(String(player.id || player.userId || "unknown"));
-    const fallbackX = 200 + (fallbackSeed % (mapWidth * TILE_SIZE - 400));
-    const fallbackY = 200 + ((fallbackSeed * 13) % (mapHeight * TILE_SIZE - 400));
+    const safeRangeX = Math.max(1, mapWidth * TILE_SIZE - 400);
+    const safeRangeY = Math.max(1, mapHeight * TILE_SIZE - 400);
+    const fallbackX = 200 + (fallbackSeed % safeRangeX);
+    const fallbackY = 200 + ((fallbackSeed * 13) % safeRangeY);
 
     return {
         x: Number.isFinite(px) ? px : fallbackX,
@@ -309,8 +312,9 @@ function readPlayerPos(player) {
 }
 
 async function loadMap(mapName) {
+    const safeMapName = sanitizeMapName(mapName);
     try {
-        const resp = await fetch(`maps/${mapName}`);
+        const resp = await fetch(`maps/${safeMapName}`);
         if (!resp.ok) throw new Error("map not found");
 
         const raw = await resp.text();
@@ -331,7 +335,7 @@ async function loadMap(mapName) {
         dom.playersLayer.style.height = canvas.height + "px";
 
         renderMap();
-        log(`Map loaded: ${mapName}`);
+        log(`Map loaded: ${safeMapName}`);
     } catch {
         mapRows = new Array(100).fill("A".repeat(100));
         mapHeight = 100;
@@ -342,7 +346,7 @@ async function loadMap(mapName) {
         canvas.height = mapHeight * TILE_SIZE;
 
         renderMap();
-        log(`Map fallback used: ${mapName}`);
+        log(`Map fallback used: ${safeMapName}`);
     }
 }
 
@@ -436,11 +440,6 @@ function updateSelfMovement(dt, now) {
             x: Math.round(selfState.x),
             y: Math.round(selfState.y),
         });
-        wsSend({
-            action: "player_move",
-            x: Math.round(selfState.x),
-            y: Math.round(selfState.y),
-        });
     }
 }
 
@@ -454,9 +453,8 @@ function getInputDirection() {
     if (keys.has("d") || keys.has("arrowright")) dx += 1;
 
     if (dx !== 0 && dy !== 0) {
-        const inv = 1 / Math.sqrt(2);
-        dx *= inv;
-        dy *= inv;
+        dx *= DIAGONAL_SPEED_MULTIPLIER;
+        dy *= DIAGONAL_SPEED_MULTIPLIER;
     }
 
     return { dx, dy };
@@ -491,4 +489,11 @@ function hashCode(str) {
         hash |= 0;
     }
     return Math.abs(hash);
+}
+
+function sanitizeMapName(mapName) {
+    if (typeof mapName !== "string") return DEFAULT_MAP;
+    const trimmed = mapName.trim();
+    if (!/^[A-Za-z0-9._-]+\.map$/.test(trimmed)) return DEFAULT_MAP;
+    return trimmed;
 }

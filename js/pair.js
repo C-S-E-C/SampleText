@@ -65,6 +65,12 @@ async function pair() {
         }));
     };
     
+    const storeSession = (sessionId) => {
+        if (!sessionId) return;
+        sessionStorage.setItem("sessionId", sessionId);
+        sessionStorage.setItem("matchId", sessionId);
+    };
+
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         
@@ -72,11 +78,7 @@ async function pair() {
             sessionStorage.setItem("groupId", data.groupId);
             sessionStorage.setItem("myTeam", data.myTeam);
             sessionStorage.setItem("myId", data.myId);
-            if (data.matchId || data.sessionId || data.groupId) {
-                const sessionId = data.matchId || data.sessionId || data.groupId;
-                sessionStorage.setItem("sessionId", sessionId);
-                sessionStorage.setItem("matchId", sessionId);
-            }
+            storeSession(data.matchId || data.sessionId || data.groupId);
             if (data.battlefield) {
                 sessionStorage.setItem("battlefield", data.battlefield);
             }
@@ -101,10 +103,7 @@ async function pair() {
             document.getElementById("start-battle").disabled = false;
             document.getElementById("start-battle").onclick = () => {
                 const sessionId = data.matchId || data.sessionId || sessionStorage.getItem("sessionId");
-                if (sessionId) {
-                    sessionStorage.setItem("sessionId", sessionId);
-                    sessionStorage.setItem("matchId", sessionId);
-                }
+                storeSession(sessionId);
                 if (data.battlefield) {
                     sessionStorage.setItem("battlefield", data.battlefield);
                 }
