@@ -72,6 +72,14 @@ async function pair() {
             sessionStorage.setItem("groupId", data.groupId);
             sessionStorage.setItem("myTeam", data.myTeam);
             sessionStorage.setItem("myId", data.myId);
+            if (data.matchId || data.sessionId || data.groupId) {
+                const sessionId = data.matchId || data.sessionId || data.groupId;
+                sessionStorage.setItem("sessionId", sessionId);
+                sessionStorage.setItem("matchId", sessionId);
+            }
+            if (data.battlefield) {
+                sessionStorage.setItem("battlefield", data.battlefield);
+            }
         } else if (data.type === "add_player") {
             // Update matching status
             const player = document.createElement("div");
@@ -92,8 +100,19 @@ async function pair() {
             statusBox.setAttribute('data-translated', 'false');
             document.getElementById("start-battle").disabled = false;
             document.getElementById("start-battle").onclick = () => {
+                const sessionId = data.matchId || data.sessionId || sessionStorage.getItem("sessionId");
+                if (sessionId) {
+                    sessionStorage.setItem("sessionId", sessionId);
+                    sessionStorage.setItem("matchId", sessionId);
+                }
+                if (data.battlefield) {
+                    sessionStorage.setItem("battlefield", data.battlefield);
+                }
                 // Enter battle interface
-                window.location.href = "battle.html?matchId=" + data.matchId;
+                const query = new URLSearchParams();
+                if (sessionId) query.set("sessionId", sessionId);
+                if (data.battlefield) query.set("battlefield", data.battlefield);
+                window.location.href = "battle.html" + (query.toString() ? "?" + query.toString() : "");
             };
         }
     };
