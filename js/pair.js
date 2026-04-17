@@ -117,7 +117,10 @@ document.addEventListener('DOMContentLoaded', function() {
         "images/fire.webp",
         "images/ground.webp",
         "images/water.webp",
-        "images/skins.webp",
+        "images/skins.back.webp",
+        "images/skins.front.webp",
+        "images/skins.left.webp",
+        "images/skins.right.webp",
     ];
     
     for (const file of cachedFiles) {
