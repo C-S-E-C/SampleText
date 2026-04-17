@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/battle.css">
+    <script src="js/basic.js"></script>
+</head>
+<body>
+    <div id="battle-root">
+        <header id="hud-top">
+            <div id="session-info">Session: <span id="session-id">-</span></div>
+            <div id="connection-state">Connecting...</div>
+        </header>
+
+        <main id="scene" aria-label="2D battle scene">
+            <div id="world-layer" aria-label="Map and players layer">
+                <canvas id="map-canvas"></canvas>
+                <div id="players-layer"></div>
+            </div>
+
+            <div id="self-layer" aria-label="Self layer (fixed center)">
+                <div id="self-avatar"></div>
+                <div id="self-name">YOU</div>
+            </div>
+        </main>
+
+        <section id="controls-panel">
+            <button id="start-game">Start Game</button>
+            <span id="help-text">Move: WASD / Arrow Keys</span>
+        </section>
+
+        <section id="event-log" aria-live="polite"></section>
+    </div>
+
+    <script src="js/battle.js"></script>
+</body>
+</html>
