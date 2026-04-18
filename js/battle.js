@@ -389,19 +389,20 @@ async function tileImage(cell) {
         "W": "images/water.webp",
         "B": "images/block.webp",
     };
+    
     const cache = await caches.open("cache");
     let targetsrc;
     if (cell in cells) {
         targetsrc = cells[cell];
+    } else {
+        targetsrc = "images/ground.webp";
     }
-    targetsrc = "images/ground.webp";
-
     const cachedResponse = await cache.match(targetsrc);
     if (cachedResponse) {
         const blob = await cachedResponse.blob();
         return URL.createObjectURL(blob);
     } else {
-        cache.add(targetsrc);
+        await cache.add(targetsrc);
         return targetsrc;
     }
 }
