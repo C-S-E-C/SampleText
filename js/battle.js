@@ -33,6 +33,7 @@ const keys = new Set();
 let lastFrameTime = 0;
 let lastSendTime = 0;
 let started = false;
+let hasLoggedMissingTileSprite = false;
 
 const dom = {
     sessionId: null,
@@ -367,14 +368,22 @@ function renderMap() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let y = 0; y < mapRows.length; y++) {
-            const row = mapRows[y] || "";
-            for (let x = 0; x < mapWidth; x++) {
-                const cell = row[x] || "A";
-                const img = tileSpriteCache.get(cell) || tileSpriteCache.get("A");
-                if (!img) continue;
-                ctx.drawImage(img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        const row = mapRows[y] || "";
+        for (let x = 0; x < mapWidth; x++) {
+            const cell = row[x] || "A";
+            const img = tileSpriteCache.get(cell) || tileSpriteCache.get("A");
+            if (!img) {
+                ctx.fillStyle = "#1d2b3e";
+                ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                if (!hasLoggedMissingTileSprite) {
+                    hasLoggedMissingTileSprite = true;
+                    log("Map tile sprite missing; using color fallback.");
+                }
+                continue;
             }
+            ctx.drawImage(img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
+    }
 
     ctx.strokeStyle = "rgba(255,255,255,0.06)";
     for (let x = 0; x <= mapWidth; x += 2) {
@@ -412,7 +421,7 @@ function loadImage(src) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve(img);
-        img.onerror = reject;
+        img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
         img.src = src;
     });
 }
