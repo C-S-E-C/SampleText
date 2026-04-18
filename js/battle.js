@@ -411,8 +411,12 @@ async function preloadTileSprites() {
     const keys = new Set(["A", ...Object.keys(TILE_IMAGES)]);
     const tasks = Array.from(keys).map(async (key) => {
         const src = tileImage(key);
-        const img = await loadImage(src);
-        tileSpriteCache.set(key, img);
+        try {
+            const img = await loadImage(src);
+            tileSpriteCache.set(key, img);
+        } catch (err) {
+            log((err && err.message) || `Failed to load image: ${src}`);
+        }
     });
     await Promise.all(tasks);
 }
@@ -421,7 +425,7 @@ function loadImage(src) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+        img.onerror = () => reject(new Error(`Failed to load image: ${src}. Check that the file exists and is accessible.`));
         img.src = src;
     });
 }
