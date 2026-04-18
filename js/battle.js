@@ -6,6 +6,7 @@
 
 let TILE_SIZE = 32;
 const DEFAULT_MAP = "air.map";
+const DEFAULT_TILE = "A";
 let MOVE_SPEED = 180; // world units/sec
 let SEND_INTERVAL_MS = 32;
 const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
@@ -370,8 +371,8 @@ function renderMap() {
     for (let y = 0; y < mapRows.length; y++) {
         const row = mapRows[y] || "";
         for (let x = 0; x < mapWidth; x++) {
-            const cell = row[x] || "A";
-            const img = tileSpriteCache.get(cell) || tileSpriteCache.get("A");
+            const cell = row[x] || DEFAULT_TILE;
+            const img = tileSpriteCache.get(cell) || tileSpriteCache.get(DEFAULT_TILE);
             if (!img) {
                 ctx.fillStyle = "#1d2b3e";
                 ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -408,14 +409,14 @@ function tileImage(cell) {
 }
 
 async function preloadTileSprites() {
-    const keys = new Set(["A", ...Object.keys(TILE_IMAGES)]);
+    const keys = new Set([DEFAULT_TILE, ...Object.keys(TILE_IMAGES)]);
     const tasks = Array.from(keys).map(async (key) => {
         const src = tileImage(key);
         try {
             const img = await loadImage(src);
             tileSpriteCache.set(key, img);
         } catch (err) {
-            log((err && err.message) || `Failed to load image: ${src}`);
+            log(err.message);
         }
     });
     await Promise.all(tasks);
