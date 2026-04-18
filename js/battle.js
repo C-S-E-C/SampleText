@@ -6,9 +6,17 @@
 
 let TILE_SIZE = 32;
 const DEFAULT_MAP = "air.map";
+const DEFAULT_TILE = "A";
 let MOVE_SPEED = 180; // world units/sec
 let SEND_INTERVAL_MS = 32;
 const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
+const TILE_IMAGES = {
+    "A": "images/ground.webp",
+    "G": "images/bushes.webp",
+    "W": "images/water.webp",
+    "B": "images/block.webp",
+};
+const tileSpriteCache = new Map();
 
 let ws = null;
 let myId = null;
@@ -26,6 +34,7 @@ const keys = new Set();
 let lastFrameTime = 0;
 let lastSendTime = 0;
 let started = false;
+let hasLoggedMissingTileSprite = false;
 
 const dom = {
     sessionId: null,
@@ -334,6 +343,7 @@ async function loadMap(mapName) {
         dom.playersLayer.style.width = canvas.width + "px";
         dom.playersLayer.style.height = canvas.height + "px";
 
+        await preloadTileSprites();
         renderMap();
         log(`Map loaded: ${safeMapName}`);
     } catch {
@@ -345,6 +355,7 @@ async function loadMap(mapName) {
         canvas.width = mapWidth * TILE_SIZE;
         canvas.height = mapHeight * TILE_SIZE;
 
+        await preloadTileSprites();
         renderMap();
         log(`Map fallback used: ${safeMapName}`);
     }
@@ -360,9 +371,19 @@ function renderMap() {
     for (let y = 0; y < mapRows.length; y++) {
         const row = mapRows[y] || "";
         for (let x = 0; x < mapWidth; x++) {
-            const cell = row[x] || "A";
-            const img = new Image();
-            img.src = tileImage(cell);
+            const cell = row[x] || DEFAULT_TILE;
+            const defaultImg = tileSpriteCache.get(DEFAULT_TILE);
+            // If DEFAULT_TILE is also missing, we intentionally fall back to a solid color tile.
+            const img = tileSpriteCache.get(cell) || defaultImg;
+            if (!img) {
+                ctx.fillStyle = "#1d2b3e";
+                ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                if (!hasLoggedMissingTileSprite) {
+                    hasLoggedMissingTileSprite = true;
+                    log("Map tile sprite missing; using color fallback.");
+                }
+                continue;
+            }
             ctx.drawImage(img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
     }
@@ -382,29 +403,34 @@ function renderMap() {
     }
 }
 
-async function tileImage(cell) {
-    const cells = {
-        "A": "images/ground.webp",
-        "G": "images/bushes.webp",
-        "W": "images/water.webp",
-        "B": "images/block.webp",
-    };
-    
-    const cache = await caches.open("cache");
-    let targetsrc;
-    if (cell in cells) {
-        targetsrc = cells[cell];
-    } else {
-        targetsrc = "images/ground.webp";
+function tileImage(cell) {
+    if (cell in TILE_IMAGES) {
+        return TILE_IMAGES[cell];
     }
-    const cachedResponse = await cache.match(targetsrc);
-    if (cachedResponse) {
-        const blob = await cachedResponse.blob();
-        return URL.createObjectURL(blob);
-    } else {
-        await cache.add(targetsrc);
-        return targetsrc;
-    }
+    return "images/ground.webp";
+}
+
+async function preloadTileSprites() {
+    const keys = new Set([DEFAULT_TILE, ...Object.keys(TILE_IMAGES)]);
+    const tasks = Array.from(keys).map(async (key) => {
+        const src = tileImage(key);
+        try {
+            const img = await loadImage(src);
+            tileSpriteCache.set(key, img);
+        } catch (err) {
+            log(`${key}: ${err.message}`);
+        }
+    });
+    await Promise.all(tasks);
+}
+
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`Failed to load image: ${src}. Check that the file exists and is accessible.`));
+        img.src = src;
+    });
 }
 
 function renderPlayers() {
