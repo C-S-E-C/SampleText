@@ -2,121 +2,103 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Map Editor - 100x100</title>
+    <title>2D地图编辑器</title>
     <style>
-        body { font-family: sans-serif; background: #333; color: white; display: flex; flex-direction: column; align-items: center; }
-        .controls { margin: 20px; padding: 15px; background: #444; border-radius: 8px; position: sticky; top: 10px; z-index: 100; }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f0f0f0; }
+        .toolbar { margin: 20px; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; gap: 15px; align-items: center; }
         
-        /* 画布容器：设置滚动条，因为100x100很大 */
-        .canvas-container { 
-            width: 800px; height: 600px; 
-            overflow: auto; border: 2px solid #000; background: #eee; 
-        }
+        .brush-option { width: 30px; height: 30px; border: 2px solid #ccc; cursor: pointer; border-radius: 4px; transition: transform 0.2s; }
+        .brush-option.active { border-color: #000; transform: scale(1.2); }
         
-        #map-grid { 
+        /* 颜色定义 */
+        .color-A { background-color: #ffffff; } /* 地板 */
+        .color-B { background-color: #8B4513; } /* 墙体 */
+        .color-W { background-color: #1E90FF; } /* 水 */
+        .color-G { background-color: #32CD32; } /* 草 */
+
+        #grid-container { 
             display: grid; 
-            grid-template-columns: repeat(100, 20px); 
-            grid-template-rows: repeat(100, 20px);
+            grid-template-columns: repeat(50, 15px); 
+            grid-template-rows: repeat(25, 15px); 
+            gap: 1px; 
+            background: #ddd; 
+            border: 2px solid #555;
             user-select: none;
         }
-
-        .cell {
-            width: 20px; height: 20px;
-            border: 0.1px solid rgba(0,0,0,0.05);
-            background-size: cover;
-            background-image: url('images/ground.webp'); /* 默认是空气/地面 */
-        }
-
-        .btn { padding: 10px 20px; cursor: pointer; border: none; border-radius: 4px; margin: 0 5px; font-weight: bold; }
-        .active { outline: 3px solid #ffeb3b; }
+        .cell { width: 15px; height: 15px; background: #fff; cursor: crosshair; }
         
-        /* 导出区域 */
-        #output-area { margin-top: 20px; width: 800px; }
-        textarea { width: 100%; height: 150px; background: #222; color: #0f0; font-family: monospace; }
+        .output-area { margin-top: 20px; width: 800px; }
+        textarea { width: 100%; height: 200px; font-family: monospace; }
+        button.export-btn { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <h2>地图编辑器 (100x100)</h2>
+    <h2>地图创作编辑器 (25x50)</h2>
 
-    <div class="controls">
-        <button class="btn active" onclick="setBrush('A', this)" style="background: #ccc;">Air (A)</button>
-        <button class="btn" onclick="setBrush('B', this)" style="background: #795548;">Block (B)</button>
-        <button class="btn" onclick="setBrush('G', this)" style="background: #4caf50;">Bush (G)</button>
-        <button class="btn" onclick="setBrush('W', this)" style="background: #2196f3;">Water (W)</button>
-        <button class="btn" onclick="setBrush('E', this)" style="background: #9900ff;">Exit (E)</button>
-        <hr>
-        <button class="btn" onclick="exportMap()" style="background: #f44336;">导出地图文本</button>
-        <span>当前笔刷: <span id="current-brush-text">Air</span></span>
+    <div class="toolbar">
+        <span>选择笔刷：</span>
+        <div class="brush-option color-G active" onclick="setBrush('G', this)" title="草 (G)"></div>
+        <div class="brush-option color-W" onclick="setBrush('W', this)" title="水 (W)"></div>
+        <div class="brush-option color-B" onclick="setBrush('B', this)" title="墙 (B)"></div>
+        <div class="brush-option color-A" onclick="setBrush('A', this)" title="地板 (A)"></div>
+        <button class="export-btn" onclick="exportMap()">导出地图数据</button>
     </div>
 
-    <div class="canvas-container">
-        <div id="map-grid"></div>
-    </div>
+    <div id="grid-container"></div>
 
-    <div id="output-area">
-        <p>导出结果 (10000 字符):</p>
-        <textarea id="output-text" readonly placeholder="点击上方导出按钮..."></textarea>
+    <div class="output-area">
+        <h3>导出数据：</h3>
+        <textarea id="output-text" readonly placeholder="点击导出按钮后在此复制数据..."></textarea>
     </div>
 
     <script>
-        const GRID_SIZE = 100;
-        const gridElement = document.getElementById('map-grid');
-        let currentBrush = 'A';
-        let isMouseDown = false;
+        const ROWS = 25;
+        const COLS = 50;
+        let currentBrush = 'G';
+        let isDrawing = false;
 
-        // 资源映射
-        const assets = {
-            'A': 'images/ground.webp',
-            'B': 'images/block.webp',
-            'G': 'images/bush.webp',
-            'W': 'images/water.webp',
-            'E': 'images/exit.png'
-        };
-
-        // 1. 初始化 100x100 网格
-        function initGrid() {
-            for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.type = 'A'; // 默认是 Air
-                
-                // 鼠标事件
-                cell.addEventListener('mousedown', () => { isMouseDown = true; applyBrush(cell); });
-                cell.addEventListener('mouseenter', () => { if (isMouseDown) applyBrush(cell); });
-                
-                gridElement.appendChild(cell);
-            }
+        // 初始化网格
+        const container = document.getElementById('grid-container');
+        for (let i = 0; i < ROWS * COLS; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell', 'color-A'); // 默认背景为白色(A)
+            cell.dataset.type = 'A';
+            
+            // 鼠标事件
+            cell.addEventListener('mousedown', () => { isDrawing = true; paint(cell); });
+            cell.addEventListener('mouseenter', () => { if (isDrawing) paint(cell); });
+            container.appendChild(cell);
         }
 
-        window.addEventListener('mouseup', () => isMouseDown = false);
+        window.addEventListener('mouseup', () => isDrawing = false);
 
-        // 2. 切换笔刷
-        function setBrush(type, btn) {
+        // 设置笔刷
+        function setBrush(type, element) {
             currentBrush = type;
-            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('current-brush-text').innerText = type;
+            document.querySelectorAll('.brush-option').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
         }
 
-        // 3. 涂抹颜色/图片
-        function applyBrush(cell) {
+        // 涂色
+        function paint(cell) {
+            // 清除旧类名并添加新类名
+            cell.className = 'cell color-' + currentBrush;
             cell.dataset.type = currentBrush;
-            cell.style.backgroundImage = `url('${assets[currentBrush]}')`;
         }
 
-        // 4. 导出文本
+        // 导出数据
         function exportMap() {
             const cells = document.querySelectorAll('.cell');
             let result = "";
             cells.forEach((cell, index) => {
                 result += cell.dataset.type;
-                if ((index + 1) % 100 === 0) result += "\n";
+                if ((index + 1) % COLS === 0) {
+                    result += "\n";
+                }
             });
-            document.getElementById('output-text').value = result;
+            document.getElementById('output-text').value = result.trim();
         }
-
-        initGrid();
     </script>
 </body>
 </html>
