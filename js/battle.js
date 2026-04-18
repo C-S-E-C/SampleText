@@ -121,7 +121,7 @@ function bindEvents() {
 }
 
 function connectWebSocket() {
-    const wsUrl = sessionStorage.getItem("WSServer");
+    const wsUrl = sessionStorage.getItem("WSServer") || "wss://1.s.syntropica.top:10012";
     if (!wsUrl) {
         setStatus("WSServer missing in sessionStorage");
         return;
@@ -361,8 +361,9 @@ function renderMap() {
         const row = mapRows[y] || "";
         for (let x = 0; x < mapWidth; x++) {
             const cell = row[x] || "A";
-            ctx.fillStyle = tileColor(cell);
-            ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            const img = new Image();
+            img.src = tileImage(cell);
+            ctx.drawImage(img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
     }
 
@@ -381,11 +382,27 @@ function renderMap() {
     }
 }
 
-function tileColor(cell) {
-    if (cell === "G") return "#2f8f46";
-    if (cell === "W") return "#256d9f";
-    if (cell === "B") return "#616161";
-    return "#1a2638";
+async function tileImage(cell) {
+    const cells = {
+        "A": "images/ground.webp",
+        "G": "images/bushes.webp",
+        "W": "images/water.webp",
+        "B": "images/block.webp",
+    };
+    const cache = await caches.open("cache");
+    if (cells.includes(cell)) {
+        const targetsrc = cells[cell];
+    }
+    const targetsrc = "images/ground.webp";
+
+    const cachedResponse = await cache.match(targetsrc);
+    if (cachedResponse) {
+        const blob = await cachedResponse.blob();
+        return URL.createObjectURL(blob);
+    } else {
+        cache.add(targetsrc);
+        return targetsrc;
+    }
 }
 
 function renderPlayers() {
