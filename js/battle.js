@@ -9,6 +9,12 @@ const DEFAULT_MAP = "air.map";
 let MOVE_SPEED = 180; // world units/sec
 let SEND_INTERVAL_MS = 32;
 const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
+const TILE_IMAGES = {
+    "A": "images/ground.webp",
+    "G": "images/bushes.webp",
+    "W": "images/water.webp",
+    "B": "images/block.webp",
+};
 
 let ws = null;
 let myId = null;
@@ -382,29 +388,11 @@ function renderMap() {
     }
 }
 
-async function tileImage(cell) {
-    const cells = {
-        "A": "images/ground.webp",
-        "G": "images/bushes.webp",
-        "W": "images/water.webp",
-        "B": "images/block.webp",
-    };
-    
-    const cache = await caches.open("cache");
-    let targetsrc;
-    if (cell in cells) {
-        targetsrc = cells[cell];
-    } else {
-        targetsrc = "images/ground.webp";
+function tileImage(cell) {
+    if (cell in TILE_IMAGES) {
+        return TILE_IMAGES[cell];
     }
-    const cachedResponse = await cache.match(targetsrc);
-    if (cachedResponse) {
-        const blob = await cachedResponse.blob();
-        return URL.createObjectURL(blob);
-    } else {
-        await cache.add(targetsrc);
-        return targetsrc;
-    }
+    return "images/ground.webp";
 }
 
 function renderPlayers() {
