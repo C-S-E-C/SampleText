@@ -10,6 +10,10 @@ const DEFAULT_TILE = "A";
 let MOVE_SPEED = 180; // world units/sec
 let SEND_INTERVAL_MS = 32;
 const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
+const WATER_SPEED_MULTIPLIER = 0.8;
+const PLAYER_HITBOX_RADIUS = 14;
+const BLOCK_TILE = "B";
+const WATER_TILE = "W";
 const TILE_IMAGES = {
     "A": "images/ground.webp",
     "G": "images/bushes.webp",
@@ -468,14 +472,22 @@ function updateSelfMovement(dt, now) {
     const dir = getInputDirection();
     if (dir.dx === 0 && dir.dy === 0) return;
 
-    selfState.x += dir.dx * MOVE_SPEED * dt;
-    selfState.y += dir.dy * MOVE_SPEED * dt;
+    const speedMultiplier = isWaterTile(selfState.x, selfState.y) ? WATER_SPEED_MULTIPLIER : 1;
+    const moveX = dir.dx * MOVE_SPEED * speedMultiplier * dt;
+    const moveY = dir.dy * MOVE_SPEED * speedMultiplier * dt;
 
     const maxX = mapWidth * TILE_SIZE;
     const maxY = mapHeight * TILE_SIZE;
 
-    selfState.x = clamp(selfState.x, 0, maxX);
-    selfState.y = clamp(selfState.y, 0, maxY);
+    const nextX = clamp(selfState.x + moveX, 0, maxX);
+    if (!isBlockedByTile(nextX, selfState.y)) {
+        selfState.x = nextX;
+    }
+
+    const nextY = clamp(selfState.y + moveY, 0, maxY);
+    if (!isBlockedByTile(selfState.x, nextY)) {
+        selfState.y = nextY;
+    }
 
     if (now - lastSendTime >= SEND_INTERVAL_MS) {
         lastSendTime = now;
@@ -503,6 +515,55 @@ function getInputDirection() {
     }
 
     return { dx, dy };
+}
+
+function isWaterTile(worldX, worldY) {
+    return getMapCellByWorld(worldX, worldY) === WATER_TILE;
+}
+
+function isBlockedByTile(worldX, worldY) {
+    const minTileX = Math.floor((worldX - PLAYER_HITBOX_RADIUS) / TILE_SIZE);
+    const maxTileX = Math.floor((worldX + PLAYER_HITBOX_RADIUS) / TILE_SIZE);
+    const minTileY = Math.floor((worldY - PLAYER_HITBOX_RADIUS) / TILE_SIZE);
+    const maxTileY = Math.floor((worldY + PLAYER_HITBOX_RADIUS) / TILE_SIZE);
+
+    for (let tileY = minTileY; tileY <= maxTileY; tileY++) {
+        for (let tileX = minTileX; tileX <= maxTileX; tileX++) {
+            if (getMapCell(tileX, tileY) !== BLOCK_TILE) continue;
+            if (circleIntersectsTile(worldX, worldY, PLAYER_HITBOX_RADIUS, tileX, tileY)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function getMapCellByWorld(worldX, worldY) {
+    const tileX = Math.floor(worldX / TILE_SIZE);
+    const tileY = Math.floor(worldY / TILE_SIZE);
+    return getMapCell(tileX, tileY);
+}
+
+function getMapCell(tileX, tileY) {
+    if (tileX < 0 || tileY < 0 || tileY >= mapRows.length || tileX >= mapWidth) {
+        return DEFAULT_TILE;
+    }
+    const row = mapRows[tileY] || "";
+    return row[tileX] || DEFAULT_TILE;
+}
+
+function circleIntersectsTile(cx, cy, radius, tileX, tileY) {
+    const left = tileX * TILE_SIZE;
+    const top = tileY * TILE_SIZE;
+    const right = left + TILE_SIZE;
+    const bottom = top + TILE_SIZE;
+
+    const nearestX = clamp(cx, left, right);
+    const nearestY = clamp(cy, top, bottom);
+    const dx = cx - nearestX;
+    const dy = cy - nearestY;
+
+    return (dx * dx + dy * dy) < (radius * radius);
 }
 
 function updateCamera() {
