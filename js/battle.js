@@ -476,8 +476,8 @@ function updateSelfMovement(dt, now) {
     const dir = getInputDirection();
     if (dir.dx === 0 && dir.dy === 0) return;
 
-    const moveX = dir.dx * MOVE_SPEED * dt;
-    const moveY = dir.dy * MOVE_SPEED * dt;
+    const moveX = dir.dx * Speed_Now * dt;
+    const moveY = dir.dy * Speed_Now * dt;
     const projectedX = selfState.x + moveX;
     const projectedY = selfState.y + moveY;
     const Needs_slow_down = isTile(selfState.x, selfState.y, "W") || isTile(projectedX, projectedY, "W") || isTile(selfState.x, selfState.y, "G") || isTile(projectedX, projectedY, "G");
