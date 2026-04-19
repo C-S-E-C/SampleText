@@ -12,6 +12,7 @@ let SEND_INTERVAL_MS = 32;
 const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
 const WATER_SPEED_MULTIPLIER = 0.8;
 const PLAYER_HITBOX_RADIUS = 14;
+const PLAYER_HITBOX_RADIUS_SQUARED = PLAYER_HITBOX_RADIUS * PLAYER_HITBOX_RADIUS;
 const BLOCK_TILE = "B";
 const WATER_TILE = "W";
 const TILE_IMAGES = {
@@ -545,7 +546,7 @@ function isBlockedByTile(worldX, worldY) {
     for (let tileY = minTileY; tileY <= maxTileY; tileY++) {
         for (let tileX = minTileX; tileX <= maxTileX; tileX++) {
             if (getMapCell(tileX, tileY) !== BLOCK_TILE) continue;
-            if (circleIntersectsTile(worldX, worldY, PLAYER_HITBOX_RADIUS, tileX, tileY)) {
+            if (circleIntersectsTile(worldX, worldY, tileX, tileY)) {
                 return true;
             }
         }
@@ -560,14 +561,14 @@ function getMapCellByWorld(worldX, worldY) {
 }
 
 function getMapCell(tileX, tileY) {
-    if (tileX < 0 || tileX >= mapWidth || tileY < 0 || tileY >= mapRows.length) {
+    if (tileX < 0 || tileX >= mapWidth || tileY < 0 || tileY >= mapHeight) {
         return DEFAULT_TILE;
     }
     const row = mapRows[tileY] || "";
     return row[tileX] || DEFAULT_TILE;
 }
 
-function circleIntersectsTile(cx, cy, radius, tileX, tileY) {
+function circleIntersectsTile(cx, cy, tileX, tileY) {
     const left = tileX * TILE_SIZE;
     const top = tileY * TILE_SIZE;
     const right = left + TILE_SIZE;
@@ -578,7 +579,7 @@ function circleIntersectsTile(cx, cy, radius, tileX, tileY) {
     const dx = cx - nearestX;
     const dy = cy - nearestY;
 
-    return (dx * dx + dy * dy) <= (radius * radius);
+    return (dx * dx + dy * dy) <= PLAYER_HITBOX_RADIUS_SQUARED;
 }
 
 function updateCamera() {
