@@ -492,14 +492,14 @@ function updateSelfMovement(dt, now) {
     const nextX = clamp(prevX + moveX, 0, maxX);
     const nextY = clamp(prevY + moveY, 0, maxY);
 
-    const canMoveX = !isBlockedByTile(nextX, prevY);
-    const canMoveY = !isBlockedByTile(prevX, nextY);
     const canMoveDiagonal = !isBlockedByTile(nextX, nextY);
 
-    if (canMoveX && canMoveY && canMoveDiagonal) {
+    if (canMoveDiagonal) {
         selfState.x = nextX;
         selfState.y = nextY;
     } else {
+        const canMoveX = !isBlockedByTile(nextX, prevY);
+        const canMoveY = !isBlockedByTile(prevX, nextY);
         if (canMoveX) selfState.x = nextX;
         if (canMoveY) selfState.y = nextY;
     }
@@ -560,7 +560,7 @@ function getMapCellByWorld(worldX, worldY) {
 }
 
 function getMapCell(tileX, tileY) {
-    if (tileX < 0 || tileY < 0 || tileY >= mapRows.length || tileX >= mapWidth) {
+    if (tileX < 0 || tileX >= mapWidth || tileY < 0 || tileY >= mapRows.length) {
         return DEFAULT_TILE;
     }
     const row = mapRows[tileY] || "";
