@@ -475,13 +475,12 @@ function gameLoop(timestamp) {
 function updateSelfMovement(dt, now) {
     const dir = getInputDirection();
     if (dir.dx === 0 && dir.dy === 0) return;
-
+    const Needs_slow_down = isTile(selfState.x, selfState.y, "W") || isTile(projectedX, projectedY, "W") || isTile(selfState.x, selfState.y, "G") || isTile(projectedX, projectedY, "G");
+    Speed_Now = Needs_slow_down ? (WATER_SPEED_MULTIPLIER * Speed_Now) : Speed_Now;
     const moveX = dir.dx * Speed_Now * dt;
     const moveY = dir.dy * Speed_Now * dt;
     const projectedX = selfState.x + moveX;
     const projectedY = selfState.y + moveY;
-    const Needs_slow_down = isTile(selfState.x, selfState.y, "W") || isTile(projectedX, projectedY, "W") || isTile(selfState.x, selfState.y, "G") || isTile(projectedX, projectedY, "G");
-    Speed_Now = Needs_slow_down ? (WATER_SPEED_MULTIPLIER * Speed_Now) : Speed_Now;
 
     const maxX = mapWidth * TILE_SIZE;
     const maxY = mapHeight * TILE_SIZE;
