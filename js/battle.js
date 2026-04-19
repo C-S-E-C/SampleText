@@ -26,7 +26,7 @@ let ws = null;
 let myId = null;
 let sessionId = null;
 let battlefield = DEFAULT_MAP;
-
+let SelfUpdaateMessageCount = 0;
 let mapRows = [];
 let mapWidth = 100;
 let mapHeight = 100;
@@ -270,7 +270,10 @@ function applyGameState(state) {
         next.set(record.id, record);
 
         if (record.id === String(myId)) {
-            selfState = { ...selfState, ...record };
+            if (SelfUpdaateMessageCount % 10 === 0) {
+                selfState = { ...selfState, ...record };
+            }
+            SelfUpdaateMessageCount++;
             dom.selfName.textContent = record.name;
         }
     });
