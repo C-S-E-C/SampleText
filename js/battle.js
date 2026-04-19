@@ -14,7 +14,6 @@ const WATER_SPEED_MULTIPLIER = 0.8;
 const PLAYER_HITBOX_RADIUS = 14;
 const PLAYER_HITBOX_RADIUS_SQUARED = PLAYER_HITBOX_RADIUS * PLAYER_HITBOX_RADIUS;
 const BLOCK_TILE = "B";
-const WATER_TILE = "W";
 const TILE_IMAGES = {
     "A": "images/ground.webp",
     "G": "images/bushes.webp",
@@ -477,9 +476,8 @@ function updateSelfMovement(dt, now) {
     const moveY = dir.dy * MOVE_SPEED * dt;
     const projectedX = selfState.x + moveX;
     const projectedY = selfState.y + moveY;
-    const onWaterNow = isWaterTile(selfState.x, selfState.y);
-    const enteringWater = isWaterTile(projectedX, projectedY);
-    MOVE_SPEED = (onWaterNow || enteringWater) ? (WATER_SPEED_MULTIPLIER * 180) : 180;
+    const Needs_slow_down = isTile(selfState.x, selfState.y, "W") || isTile(projectedX, projectedY, "W") || isTile(selfState.x, selfState.y, "G") || isTile(projectedX, projectedY, "G");
+    MOVE_SPEED = Needs_slow_down ? (WATER_SPEED_MULTIPLIER * 180) : 180;
 
     const maxX = mapWidth * TILE_SIZE;
     const maxY = mapHeight * TILE_SIZE;
@@ -529,8 +527,8 @@ function getInputDirection() {
     return { dx, dy };
 }
 
-function isWaterTile(worldX, worldY) {
-    return getMapCellByWorld(worldX, worldY) === WATER_TILE;
+function isTile(worldX, worldY, tileType) {
+    return getMapCellByWorld(worldX, worldY) === tileType;
 }
 
 function isBlockedByTile(worldX, worldY) {
