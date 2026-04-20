@@ -8,7 +8,7 @@ let TILE_SIZE = 32;
 const DEFAULT_MAP = "air.map";
 const DEFAULT_TILE = "A";
 const BASIC_MOVE_SPEED = 200; // world units/sec
-let Speed_Now;
+let Speed_multifier = 1;
 let SEND_INTERVAL_MS = 32;
 const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
 const WATER_SPEED_MULTIPLIER = 0.6;
@@ -465,22 +465,20 @@ function gameLoop(timestamp) {
     if (!lastFrameTime) lastFrameTime = timestamp;
     const dt = Math.max(0, (timestamp - lastFrameTime) / 1000);
     lastFrameTime = timestamp;
-    Speed_Now = BASIC_MOVE_SPEED;
     updateSelfMovement(dt, timestamp);
     updateCamera();
-    Speed_Now = BASIC_MOVE_SPEED;
     requestAnimationFrame(gameLoop);
 }
 
 function updateSelfMovement(dt, now) {
     const dir = getInputDirection();
     if (dir.dx === 0 && dir.dy === 0) return;
-    const moveX = dir.dx * Speed_Now * dt;
-    const moveY = dir.dy * Speed_Now * dt;
+    const moveX = dir.dx * BASIC_MOVE_SPEED * Speed_multifier * dt;
+    const moveY = dir.dy * BASIC_MOVE_SPEED * Speed_multifier * dt;
     const projectedX = selfState.x + moveX;
     const projectedY = selfState.y + moveY;
-    const Needs_slow_down = isTile(selfState.x, selfState.y, "W") || isTile(projectedX, projectedY, "W") || isTile(selfState.x, selfState.y, "G") || isTile(projectedX, projectedY, "G");
-    Speed_Now = Needs_slow_down ? (WATER_SPEED_MULTIPLIER * Speed_Now) : Speed_Now;
+    const Is_wall = isTile(selfState.x, selfState.y, "W") || isTile(projectedX, projectedY, "W");
+    Speed_multifier = Is_wall ? (-1 * Speed_multifier) : Speed_multifier;
     const maxX = mapWidth * TILE_SIZE;
     const maxY = mapHeight * TILE_SIZE;
 
@@ -489,17 +487,17 @@ function updateSelfMovement(dt, now) {
     const nextX = clamp(prevX + moveX, 0, maxX);
     const nextY = clamp(prevY + moveY, 0, maxY);
 
-    const canMoveDiagonal = !isBlockedByTile(nextX, nextY);
+    // const canMoveDiagonal = !isBlockedByTile(nextX, nextY);
 
-    if (canMoveDiagonal) {
+    // if (canMoveDiagonal) {
         selfState.x = nextX;
         selfState.y = nextY;
-    } else {
-        const canMoveX = !isBlockedByTile(nextX, prevY);
-        const canMoveY = !isBlockedByTile(prevX, nextY);
-        if (canMoveX) selfState.x = nextX;
-        if (canMoveY) selfState.y = nextY;
-    }
+    // } else {
+    //     const canMoveX = !isBlockedByTile(nextX, prevY);
+    //     const canMoveY = !isBlockedByTile(prevX, nextY);
+    //     if (canMoveX) selfState.x = nextX;
+    //     if (canMoveY) selfState.y = nextY;
+    // }
 
     if (now - lastSendTime >= SEND_INTERVAL_MS) {
         lastSendTime = now;
@@ -533,22 +531,22 @@ function isTile(worldX, worldY, tileType) {
     return getMapCellByWorld(worldX, worldY) === tileType;
 }
 
-function isBlockedByTile(worldX, worldY) {
-    const minTileX = Math.floor((worldX - PLAYER_HITBOX_RADIUS) / TILE_SIZE);
-    const maxTileX = Math.floor((worldX + PLAYER_HITBOX_RADIUS) / TILE_SIZE);
-    const minTileY = Math.floor((worldY - PLAYER_HITBOX_RADIUS) / TILE_SIZE);
-    const maxTileY = Math.floor((worldY + PLAYER_HITBOX_RADIUS) / TILE_SIZE);
+// function isBlockedByTile(worldX, worldY) {
+//     const minTileX = Math.floor((worldX - PLAYER_HITBOX_RADIUS) / TILE_SIZE);
+//     const maxTileX = Math.floor((worldX + PLAYER_HITBOX_RADIUS) / TILE_SIZE);
+//     const minTileY = Math.floor((worldY - PLAYER_HITBOX_RADIUS) / TILE_SIZE);
+//     const maxTileY = Math.floor((worldY + PLAYER_HITBOX_RADIUS) / TILE_SIZE);
 
-    for (let tileY = minTileY; tileY <= maxTileY; tileY++) {
-        for (let tileX = minTileX; tileX <= maxTileX; tileX++) {
-            if (getMapCell(tileX, tileY) !== BLOCK_TILE) continue;
-            if (circleIntersectsTile(worldX, worldY, tileX, tileY)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
+//     for (let tileY = minTileY; tileY <= maxTileY; tileY++) {
+//         for (let tileX = minTileX; tileX <= maxTileX; tileX++) {
+//             if (getMapCell(tileX, tileY) !== BLOCK_TILE) continue;
+//             if (circleIntersectsTile(worldX, worldY, tileX, tileY)) {
+//                 return true;
+//             }
+//         }
+//     }
+//     return false;
+// }
 
 function getMapCellByWorld(worldX, worldY) {
     const tileX = Math.floor(worldX / TILE_SIZE);
