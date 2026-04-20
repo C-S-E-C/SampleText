@@ -457,6 +457,10 @@ function renderPlayers() {
         name.textContent = player.name;
         el.appendChild(name);
 
+        if (isTile(player.x, player.y, "G")) {
+            el.style.display = "none";
+        }
+
         dom.playersLayer.appendChild(el);
     });
 }
