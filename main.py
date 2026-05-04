@@ -6,7 +6,10 @@ import websockets.exceptions
 import pairing
 from game import GameSession
 import ssl
+import jwt
 
+with open("jwt_secret.txt", "r") as f:
+    JWT_SECRET = f.read().strip()
 # Active game sessions: {match_id: GameSession}
 GAME_SESSIONS = {}
 # Dropped skills per match: {match_id: {skill_id: skill_data}}
@@ -43,7 +46,7 @@ async def handler(websocket):
             try:
                 data = json.loads(raw_msg)
             except json.JSONDecodeError:
-                await wrapped.send_json_safe({"error": "Invalid JSON"})
+                await wrapped.send_json_safe({"code":2,"msg": "JWT FORMAT ERROR"})
                 continue
 
             action = data.get("action")
@@ -54,7 +57,16 @@ async def handler(websocket):
             # ---- Ping ----
             if action == "ping":
                 await wrapped.send_json_safe({"response": "pong"})
-
+            # ---- JWT Testing ----
+            elif action == "test_jwt":
+                jwt_data = data.get("userId", "unknown")
+                try:
+                    jwt.decode(jwt_data, JWT_SECRET, algorithms=["HS256"])
+                    await wrapped.send_json_safe({"code":0,"msg": "JWT OK"})
+                except jwt.exceptions.InvalidSignatureError:
+                    await wrapped.send_json_safe({"code":1,"msg": "JWT SIGNATURE ERROR"})
+                except:
+                    await wrapped.send_json_safe({"code":2,"msg": "JWT FORMAT ERROR"})
             # ---- Matchmaking ----
             elif action == "start_pairing":
                 pid = data.get("userId", "unknown")
