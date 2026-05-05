@@ -20,7 +20,9 @@ authors:
   - website: 'https://syntropica.top/'
     name: SYNTROPICA STUDIO
   - given-names: ELMES
+    family-names: LI
   - given-names: JAYDEN
+    family-names: ZHANG
 identifiers:
   - type: url
     value: 'https://github.com/C-S-E-C/skill-bound'
