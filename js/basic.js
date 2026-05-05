@@ -13,6 +13,13 @@ function download(content, fileName, contentType) {
     a.click();
     URL.revokeObjectURL(a.href); // 释放内存
 }
+
+function importscript(url) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+    document.getElementsByTagName("head")[0].appendChild(script);
+}
 // copy content to clipboard (need user interaction)
 function copyToClipboard(content) {
     navigator.clipboard.writeText(content).then(() => {

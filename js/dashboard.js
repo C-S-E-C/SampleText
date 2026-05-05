@@ -1,15 +1,7 @@
 /* ============================================
    Dashboard Page Script
    ============================================ */
-
-// Check user authentication and initialize session storage
-if (sessionStorage.getItem("coins") == null) {
-    sessionStorage.setItem("coins", 0);
-}
-if (sessionStorage.getItem("energy") == null) {
-    sessionStorage.setItem("energy", 0);
-}
-
+var coins, energy;
 // Authentication check
 if (localStorage.getItem("userid") == null) {
     window.location.href = "login.html";
@@ -23,13 +15,15 @@ document.getElementById("background-music").currentTime = sessionStorage.getItem
 document.getElementById("background-music").play();
 
 // Update UI with user stats
-document.getElementById("coins").innerHTML = "🪙 " + sessionStorage.getItem("coins") + "&nbsp;⊕";
-document.getElementById("energy").innerHTML = "🔋 " + sessionStorage.getItem("energy") + "&nbsp;⊕";
+function updateEconomy() {
+    economy = JSON.parse(atob(localStorage.getItem("economy").split(".")[1]));
+    document.getElementById("coins").innerHTML = "🪙 " + economy["coins"] + "&nbsp;⊕";
+    document.getElementById("energy").innerHTML = "🔋 " + economy["energy"] + "&nbsp;⊕";
+}
 
 // Update stats every second
 setInterval(() => {
-    document.getElementById("coins").innerHTML = "🪙 " + sessionStorage.getItem("coins") + "&nbsp;⊕";
-    document.getElementById("energy").innerHTML = "🔋 " + sessionStorage.getItem("energy") + "&nbsp;⊕";
+    updateEconomy();
 }, 1000);
 
 // Track music playback time
