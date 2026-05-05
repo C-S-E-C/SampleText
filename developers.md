@@ -28,7 +28,7 @@
 
 <br  /><br  />
 
-## Github Contributors  Github 贡献者
+## Github Contributors Github贡献者
 
 [![](https://contrib.rocks/image?repo=C-S-E-C/skill-bound)](https://github.com/C-S-E-C/skill-bound/graphs/contributors)
 
