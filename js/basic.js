@@ -1,3 +1,5 @@
+sessionStorage.setItem("WSServer", fetch("https://skill-bound.syntropica.top/dynamic.json").then(res => res.json())["WSSever"]);
+const socket = new WebSocket(sessionStorage.getItem("WSServer"));
 // wait in async functions: await wait(1000) // wait for 1 second
 function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
