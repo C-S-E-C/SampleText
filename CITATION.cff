@@ -1,0 +1,29 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Skill Bound
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: YIYANG
+    family-names: ZHU
+    affiliation: SYNTROPICA STUDIO
+  - given-names: JINDA
+    family-names: YANG
+  - given-names: ARTUR
+    family-names: CHEN
+  - given-names: YUCHENG
+    family-names: LU
+  - website: 'https://syntropica.top/'
+    name: SYNTROPICA STUDIO
+  - given-names: ELMES
+  - given-names: JAYDEN
+identifiers:
+  - type: url
+    value: 'https://github.com/C-S-E-C/skill-bound'
+    description: GITHUB
+repository-code: 'https://github.com/C-S-E-C/skill-bound'
+url: 'https://skill-bound.syntropica.top/'
