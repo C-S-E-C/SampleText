@@ -58,7 +58,7 @@ async def handler(websocket):
             if action == "ping":
                 await wrapped.send_json_safe({"response": "pong"})
             # ---- JWT Testing ----
-            elif action == "test_jwt":
+            elif action == "verify_jwt":
                 jwt_data = data.get("userId", "unknown")
                 try:
                     jwt.decode(jwt_data, JWT_SECRET, algorithms=["HS256"])
@@ -67,6 +67,12 @@ async def handler(websocket):
                     await wrapped.send_json_safe({"code":1,"msg": "JWT SIGNATURE ERROR"})
                 except:
                     await wrapped.send_json_safe({"code":2,"msg": "JWT FORMAT ERROR"})
+            # ---- Add coins ----
+            elif action == "init_coins":
+                pid = data.get("token")
+                data = jwt.encode({"userId": pid, "coins": 0, "energy": 0}, JWT_SECRET, algorithm="HS256")
+                await wrapped.send_json_safe({"code":0,"msg": "Coins added"})
+
             # ---- Matchmaking ----
             elif action == "start_pairing":
                 pid = data.get("userId", "unknown")
