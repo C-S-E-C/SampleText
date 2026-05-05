@@ -8,6 +8,7 @@
 [![Issues](https://img.shields.io/github/issues/C-S-E-C/skill-bound?label=issues&color=1F883D&logo=github)](https://github.com/C-S-E-C/skill-bound/issues)
 [![Pull requests](https://img.shields.io/github/issues-pr/C-S-E-C/skill-bound?label=pull%20requests&color=1F883D&logo=github)](https://github.com/C-S-E-C/skill-bound/pulls)
 [![Branch count](https://img.shields.io/github/branches/C-S-E-C/skill-bound)](https://github.com/C-S-E-C/skill-bound/branches)
+![GitHub last commit](https://img.shields.io/github/last-commit/C-S-E-C/skill-bound/frontend)
 
 [![Coin Exchange Rate](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fskill-bound.syntropica.top%2Fdynamic.json&query=ExchangeRate&label=Coin%20Exchange%20Rate%20(1RMB%3A%3FCOIN)&color=gold)](#)
 
