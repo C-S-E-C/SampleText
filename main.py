@@ -62,16 +62,16 @@ async def handler(websocket):
                 jwt_data = data.get("userId", "unknown")
                 try:
                     jwt.decode(jwt_data, JWT_SECRET, algorithms=["HS256"])
-                    await wrapped.send_json_safe({"code":0,"msg": "JWT OK"})
+                    await wrapped.send_json_safe({"action": "verify_jwt", "code":0,"msg": "JWT OK"})
                 except jwt.exceptions.InvalidSignatureError:
-                    await wrapped.send_json_safe({"code":1,"msg": "JWT SIGNATURE ERROR"})
+                    await wrapped.send_json_safe({"action": "verify_jwt", "code":1,"msg": "JWT SIGNATURE ERROR"})
                 except:
-                    await wrapped.send_json_safe({"code":2,"msg": "JWT FORMAT ERROR"})
+                    await wrapped.send_json_safe({"action": "verify_jwt", "code":2,"msg": "JWT FORMAT ERROR"})
             # ---- Add coins ----
             elif action == "init_coins":
-                pid = data.get("token")
-                data = jwt.encode({"userId": pid, "coins": 0, "energy": 0}, JWT_SECRET, algorithm="HS256")
-                await wrapped.send_json_safe({"code":0,"msg": "Coins added"})
+                secret = data.get("secret")
+                data = jwt.encode({"userSecret": secret, "coins": 0, "energy": 0}, JWT_SECRET, algorithm="HS256")
+                await wrapped.send_json_safe({"action": "init_coins", "code":0,"msg": "Coins added", "jwt": data})
 
             # ---- Matchmaking ----
             elif action == "start_pairing":
