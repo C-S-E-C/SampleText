@@ -17,8 +17,8 @@ document.getElementById("background-music").play();
 // Update UI with user stats
 function updateEconomy() {
     economy = JSON.parse(atob(localStorage.getItem("economy").split(".")[1]));
-    document.getElementById("coins").innerHTML = "🪙 " + economy["coins"] + "&nbsp;⊕";
-    document.getElementById("energy").innerHTML = "🔋 " + economy["energy"] + "&nbsp;⊕";
+    document.getElementById("coins").innerHTML = "🪙 " + economy["coins"] + "&nbsp;+";
+    document.getElementById("energy").innerHTML = "🔋 " + economy["energy"] + "&nbsp;+";
 }
 
 // Update stats every second
